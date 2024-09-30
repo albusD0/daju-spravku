@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.urls import reverse
 
@@ -36,3 +37,10 @@ class Tag(models.Model):
 
     def get_absolute_url(self):
         return reverse('tag', kwargs={'slug': self.slug})
+
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+    post = models.ForeignKey(Article, on_delete=models.DO_NOTHING)
+    text = models.TextField('Поделитесь своим мнением по теме статьи')
+    created = models.DateTimeField('Добавлен', auto_now_add=True)
+    moder = models.BooleanField(default=True)
