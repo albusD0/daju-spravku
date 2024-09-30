@@ -1,14 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+{% extends 'daju_spravku/base.html' %}
+
+{% block content %}
+
     {% for article in article_list %}
     <a href="{{ article.get_absolute_url }}"><h2>{{ article.title }}</h2></a>
     {{ article.content|truncatewords:40|safe }} {{ article.category }}
     {% endfor %}
-</head>
-<body>
 
-</body>
-</html>
+{% endblock %}
