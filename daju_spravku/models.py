@@ -9,7 +9,7 @@ class Article(models.Model):
     title = models.CharField(max_length=255, db_index=True)
     slug = models.SlugField(max_length=255, db_index=True, unique=True)
     content = models.TextField(blank=True)
-    category = models.ForeignKey('Category', default='Разное', on_delete=models.SET_DEFAULT)
+    category = models.ForeignKey('Category', related_name='article', default='Разное', on_delete=models.SET_DEFAULT)
     tags = models.ManyToManyField('Tag', blank=True)
 
     def get_absolute_url(self):

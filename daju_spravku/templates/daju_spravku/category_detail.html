@@ -2,9 +2,11 @@
 
 {% block content %}
 
-    {% for article in article_list %}
+    {% for article in category.article.all %}
     <a href="{{ article.get_absolute_url }}"><h2>{{ article.title }}</h2></a>
     {{ article.content|truncatewords:120|safe }} {{ article.category }}
+    {% empty %}<p>'Статей по теме нет'</p>
     {% endfor %}
+
 
 {% endblock %}
