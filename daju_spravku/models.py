@@ -39,8 +39,18 @@ class Tag(models.Model):
         return reverse('tag', kwargs={'slug': self.slug})
 
 class Comment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    post = models.ForeignKey(Article, on_delete=models.DO_NOTHING)
-    text = models.TextField('Поделитесь своим мнением по теме статьи')
-    created = models.DateTimeField('Добавлен', auto_now_add=True)
-    moder = models.BooleanField(default=True)
+    content = models.TextField(max_length=1000, default='', help_text="Enter comment about blog here.")
+    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    post_date = models.DateTimeField(auto_now_add=True)
+    post = models.ForeignKey(Article, default='', on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ["post_date"]
+
+    def __str__(self):
+        len_title = 75
+        if len(self.description) > len_title:
+            titlestring = self.description[:len_title] + '...'
+        else:
+            titlestring = self.description
+        return titlestring

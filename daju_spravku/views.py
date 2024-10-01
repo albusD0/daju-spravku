@@ -1,8 +1,10 @@
-from django.shortcuts import render
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, get_object_or_404
 
 from django.http import HttpResponse
 
 from django.views import generic
+from django.views.generic import CreateView
 
 from .models import Article, Category, Tag
 
@@ -26,9 +28,7 @@ class BlogPost(generic.DetailView):
 
 class BlogCategory(generic.DetailView):
     model = Category
-    extra_context = {
-        'active_category': Category.slug
-    }
+
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -54,3 +54,38 @@ class SearchResultsView(generic.ListView):
         query = super().get_context_data(**kwargs)
         query['query'] = self.request.GET.get('s')
         return query
+
+
+class BlogCommentCreate(LoginRequiredMixin, CreateView):
+    """
+    Form for adding a blog comment. Requires login.
+    """
+    model = Comment
+    fields = ['content', ]
+
+    def get_context_data(self, **kwargs):
+        """
+        Add associated blog to form template so can display its title in HTML.
+        """
+        # Call the base implementation first to get a context
+        context = super(BlogCommentCreate, self).get_context_data(**kwargs)
+        # Get the blog from slug and add it to the context
+        context['article'] = get_object_or_404(Article, slug=self.kwargs['slug'])
+        return context
+
+    def form_valid(self, form):
+        """
+        Add author and associated blog to form data before setting it as valid (so it is saved to model)
+        """
+        # Add logged-in user as author of comment
+        form.instance.author = self.request.user
+        # Associate comment with blog based on passed id
+        form.instance.article = get_object_or_404(Article, slug=self.kwargs['slug'])
+        # Call super-class form validation behaviour
+        return super(BlogCommentCreate, self).form_valid(form)
+
+    def get_success_url(self):
+        """
+        After posting comment return to associated blog.
+        """
+        return reverse('article_detail', kwargs={'slug': self.kwargs['slug'], })
