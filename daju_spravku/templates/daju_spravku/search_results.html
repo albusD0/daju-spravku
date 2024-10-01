@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'daju_spravku/base.html' %}
 
 {% block content %}
 {% if object_list %}
@@ -10,7 +10,7 @@
          {% comment %}<p class="last">Дата: {{item.time_create|date:"d-m-Y H:i:s"}}</p>{% endcomment %}
 	    </div>
 	<li><a href="{{ item.get_absolute_url }}"><h2>{{item.title}}</h2></a>
-	    {{item.content|linebreaks|truncatewords:40|safe}}
+	    {{ item.content|linebreaks|truncatewords:120 }}
 			<div class="clear"></div>
 			<p class="link-read-post"><a href="{{ item.get_absolute_url }}">Читать пост</a></p>
 			</li>

@@ -6,5 +6,6 @@
     <a href="{{ article.get_absolute_url }}"><h2>{{ article.title }}</h2></a>
     {{ article.content|truncatewords:120|safe }} {{ article.category }}
     {% endfor %}
+<hr >
 
 {% endblock %}

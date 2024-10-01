@@ -6,15 +6,23 @@ from django.views import generic
 
 from .models import Article, Category, Tag
 
+from .forms import *
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
 
 class Home(generic.ListView):
     model = Article
 
 class BlogPost(generic.DetailView):
     model = Article
+    form_class = CommentForm
+
+    # def form_valid(self, form): # здесь связывается пост и его автор
+    #     form.instance.author = self.request.user
+    #     return super().form_valid(form)
+    #     # Create Comment object but don't save to database yet
+    #     new_comment = comment_form.save(commit=False)
+    #     # Assign the current post to the comment
+    #     new_comment.post = post
 
 class BlogCategory(generic.DetailView):
     model = Category
@@ -22,12 +30,11 @@ class BlogCategory(generic.DetailView):
         'active_category': Category.slug
     }
 
-    # def get_context_data(self, *, object_list=None, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     print(context)
-    #     context['active_category'] = Category.objects.filter(self)
-    #     print(context)
-    #     return context
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_category'] = context['category'].id
+        print(context['category'].id)
+        return context
 
 
 
