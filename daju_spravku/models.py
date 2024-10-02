@@ -39,7 +39,14 @@ class Tag(models.Model):
         return reverse('tag', kwargs={'slug': self.slug})
 
 class Comment(models.Model):
-    content = models.TextField(max_length=1000, default='', help_text="Enter comment about blog here.")
-    author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    post_date = models.DateTimeField(auto_now_add=True)
-    post = models.ForeignKey(Article, default='', on_delete=models.CASCADE)
+    post = models.ForeignKey(Article, related_name='comments', on_delete=models.CASCADE)
+    author = models.ForeignKey(User, max_length=80, on_delete=models.CASCADE)
+    content = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ('created',)
+
+    def __str__(self):
+        return 'Comment by {} on {}'.format(self.author, self.post)

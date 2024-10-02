@@ -19,28 +19,20 @@ class BlogPost(generic.DetailView, generic.FormView):
     model = Article
     form_class = CommentForm
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['comments'] = get_object_or_404(Article, slug=self.kwargs['slug']).comments.filter(active=True) # получаем комментарии и передаем через переменную
+        return context
     def get_success_url(self):
-        """
-        After posting comment return to associated blog.
-        """
-        return reverse('post', kwargs={'slug': self.kwargs['slug'], })
+        return reverse('post', kwargs={'slug': self.kwargs['slug'], }) # возвращение на ту же страницу после успешной отправки коммента
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.author = self.request.user
+        self.object.author = self.request.user # связать коммент и юзера
+        self.object.post = get_object_or_404(Article, slug=self.kwargs['slug']) # свзать коммент с постом
         self.object.save()
         # возвращаем form_valid предка
         return super().form_valid(form)
-
-
-
-    # def form_valid(self, form): # здесь связывается пост и его автор
-    #     form.instance.author = self.request.user
-    #     return super().form_valid(form)
-    #     # Create Comment object but don't save to database yet
-    #     new_comment = comment_form.save(commit=False)
-    #     # Assign the current post to the comment
-    #     new_comment.post = post
 
 class BlogCategory(generic.DetailView):
     model = Category
