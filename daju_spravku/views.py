@@ -2,9 +2,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, get_object_or_404
 
 from django.http import HttpResponse
+from django.urls import reverse
 
 from django.views import generic
-from django.views.generic import CreateView
+from django.views.generic import CreateView, FormView
 
 from .models import Article, Category, Tag
 
@@ -14,9 +15,24 @@ from .forms import *
 class Home(generic.ListView):
     model = Article
 
-class BlogPost(generic.DetailView):
+class BlogPost(generic.DetailView, generic.FormView):
     model = Article
     form_class = CommentForm
+
+    def get_success_url(self):
+        """
+        After posting comment return to associated blog.
+        """
+        return reverse('post', kwargs={'slug': self.kwargs['slug'], })
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.author = self.request.user
+        self.object.save()
+        # возвращаем form_valid предка
+        return super().form_valid(form)
+
+
 
     # def form_valid(self, form): # здесь связывается пост и его автор
     #     form.instance.author = self.request.user
@@ -80,7 +96,7 @@ class BlogCommentCreate(LoginRequiredMixin, CreateView):
         # Add logged-in user as author of comment
         form.instance.author = self.request.user
         # Associate comment with blog based on passed id
-        form.instance.article = get_object_or_404(Article, slug=self.kwargs['slug'])
+        form.instance.blog = get_object_or_404(Article, slug=self.kwargs['slug'])
         # Call super-class form validation behaviour
         return super(BlogCommentCreate, self).form_valid(form)
 
@@ -88,4 +104,4 @@ class BlogCommentCreate(LoginRequiredMixin, CreateView):
         """
         After posting comment return to associated blog.
         """
-        return reverse('article_detail', kwargs={'slug': self.kwargs['slug'], })
+        return reverse('post', kwargs={'slug': self.kwargs['slug'], })
